@@ -11,6 +11,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -34,14 +35,16 @@ public class ColorView extends View {
     public Bitmap originalBitmap; // Store the original content before erasing
 
     private boolean isPathEmpty = true;
-    private OnLongPressListener longPressListener;
+    private OnLongPressListener onLongPressListener;
+    private GestureDetector gestureDetector;
 
     public void setOnLongPressListener(OnLongPressListener listener) {
-        this.longPressListener = listener;
+        this.onLongPressListener = listener;
     }
     public ColorView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setupDraw();
+        setupGestureDetection(context);
     }
     public void setImageBitmap(Bitmap bitmap){
         if (bitmap != null) {
@@ -50,6 +53,17 @@ public class ColorView extends View {
             invalidate(); // Trigger redraw
             Log.e("MyApp","setImageBitmap"+bitmap.getHeight());
         }
+    }
+    private void setupGestureDetection(Context context) {
+        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(MotionEvent e) {
+                // Notify the listener when a long press is detected
+                if (onLongPressListener != null) {
+                    onLongPressListener.onLongPressed();
+                }
+            }
+        });
     }
     private void setupDraw(){
         currentPaintSize = 20;
@@ -114,7 +128,7 @@ public class ColorView extends View {
     public boolean onTouchEvent(MotionEvent event) {
         float touchX = event.getX();
         float touchY = event.getY();
-
+        gestureDetector.onTouchEvent(event);
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -126,11 +140,6 @@ public class ColorView extends View {
             case MotionEvent.ACTION_UP:
                 canvas.drawPath(path, paint);
                 path.reset();
-                break;
-            case MotionEvent.ACTION_CANCEL:
-                if (longPressListener != null) {
-                    longPressListener.onLongPressed();
-                }
                 break;
             default:
                 return false;

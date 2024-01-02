@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
     private Button saveBtn;
     private LinearLayout buttonsLayout;
 
+    private boolean isVisible;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -273,6 +274,13 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
 
     @Override
     public void onLongPressed() {
-        buttonsLayout.setVisibility(View.GONE);
+        if (isVisible){
+            isVisible = false;
+            buttonsLayout.setVisibility(View.GONE);
+        }
+        else {
+            isVisible = true;
+            buttonsLayout.setVisibility(View.VISIBLE);
+        }
     }
 }
