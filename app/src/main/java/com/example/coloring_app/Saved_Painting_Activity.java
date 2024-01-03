@@ -1,6 +1,7 @@
 package com.example.coloring_app;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,16 +24,19 @@ import com.hitomi.cmlibrary.OnMenuSelectedListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Saved_Painting_Activity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
     private ImageAdapter adapter;
-    private List<ImageData> fileList = new ArrayList<>();
+    private List<ImageData> fileList;
     private FloatingActionButton actionButton;
     private GridLayoutManager layoutManager;
-    private int initialSpanCount = 4;
+    private int initialSpanCount = 1;
 
     private ScaleGestureDetector scaleGestureDetector;
     @Override
@@ -43,12 +47,16 @@ public class Saved_Painting_Activity extends AppCompatActivity {
         actionButton = findViewById(R.id.floatingActionBtn);
         recyclerView = findViewById(R.id.imageRecyclerView);
         //fileList = getImageFilesFromDirectory();
-
-        adapter = new ImageAdapter(fileList,initialSpanCount);
+        fileList = new ArrayList<>();
+        adapter = new ImageAdapter(fileList,initialSpanCount,this);
 
         layoutManager = new GridLayoutManager(this, initialSpanCount);
         recyclerView.setLayoutManager(layoutManager); // Adjust the layout manager as needed
+
+
+
         recyclerView.setAdapter(adapter);
+       // recyclerView.addItemDecoration(new DividerItemDecoration(this,DividerItemDecoration.VERTICAL));
 
 
         actionButton.setOnClickListener(v -> {
@@ -66,35 +74,6 @@ public class Saved_Painting_Activity extends AppCompatActivity {
             }
         });
 
-        arcMenu();
-    }
-    private void arcMenu(){
-        CircleMenu circleMenu = findViewById(R.id.arcMenuPaint);
-        circleMenu.setMainMenu(Color.parseColor("#CBB0FA"),R.drawable.menu_icon,R.drawable.cancel_icon)
-                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.color_picker)
-                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.brush_size)
-                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.eraser)
-                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.save_icon)
-                .setOnMenuSelectedListener(new OnMenuSelectedListener() {
-                    @Override
-                    public void onMenuSelected(int index) {
-                        switch (index){
-                            case 0:
-                                Toast.makeText(Saved_Painting_Activity.this, "Color picker", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 1:
-                                Toast.makeText(Saved_Painting_Activity.this, "Brush Size", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 2:
-                                Toast.makeText(Saved_Painting_Activity.this, "eraser", Toast.LENGTH_SHORT).show();
-                                break;
-                            case 3:
-                                Toast.makeText(Saved_Painting_Activity.this, "Save", Toast.LENGTH_SHORT).show();
-                                break;
-
-                        }
-                    }
-                });
     }
 
     private void updateSpanCount(int newSpanCount) {
@@ -124,12 +103,12 @@ public class Saved_Painting_Activity extends AppCompatActivity {
         public boolean onScale(ScaleGestureDetector detector) {
             float scaleFactor = detector.getScaleFactor();
 
-            if (scaleFactor > 1.0f && layoutManager.getSpanCount() < 14) {
+            if (scaleFactor > 1.0f && layoutManager.getSpanCount() < 4) {
                 // Zoom in - Limit the maximum span count to 8 (adjust as needed)
                 updateSpanCount(layoutManager.getSpanCount() + 1);
                 return true;
             }
-            else if (scaleFactor < 1.0f && layoutManager.getSpanCount() > 4) {
+            else if (scaleFactor < 1.0f && layoutManager.getSpanCount() > 1) {
                 // Zoom out - Limit the minimum span count to 1 (adjust as needed)
                 updateSpanCount(layoutManager.getSpanCount() - 1);
                 return true;
@@ -149,7 +128,9 @@ public class Saved_Painting_Activity extends AppCompatActivity {
                     // Add only image files (you might refine this check based on your file types)
                     if (file.isFile() && file.getName().toLowerCase().endsWith(".png")) {
                         String path = file.getAbsolutePath();
-                        ImageData imagesData1 = new ImageData(path);
+                        String title = file.getName();
+                        ImageData imagesData1 = new ImageData(path,title);
+
                         fileList.add(imagesData1);
 
                     }

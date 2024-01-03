@@ -46,7 +46,7 @@ import java.util.Locale;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
-public class MainActivity extends AppCompatActivity  implements OnLongPressListener {
+public class MainActivity extends AppCompatActivity  {
 
     private ColorView colorView;
     private View circleSize1, circleSize2, circleSize3, circleSize4, circleSize5;
@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
 //            }
 //        }
         colorView = findViewById(R.id.colorView);
-        colorView.setOnLongPressListener(this);
+
 
 
 
@@ -178,13 +178,11 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
         buttonSave.setOnClickListener(v -> {
             colorView.setPaintSize(seekBar.getProgress());
             Toast.makeText(this, "Brush Size"+seekBar.getProgress(), Toast.LENGTH_SHORT).show();
-
             dialog.dismiss();
         });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
                 progressTxt.setText(String.valueOf(progress));
             }
 
@@ -335,17 +333,7 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
                 });
     }
 
-    @Override
-    public void onLongPressed() {
-        if (isVisible){
-            isVisible = false;
-            buttonsLayout.setVisibility(View.GONE);
-        }
-        else {
-            isVisible = true;
-            buttonsLayout.setVisibility(View.VISIBLE);
-        }
-    }
+
     private void deprecatedCodes(){
 
 //        circleSize1 = findViewById(R.id.circleSize1);

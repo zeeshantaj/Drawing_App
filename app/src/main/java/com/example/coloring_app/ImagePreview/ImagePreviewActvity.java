@@ -25,7 +25,7 @@ import java.util.ArrayList;
 public class ImagePreviewActvity extends AppCompatActivity {
 
     private ViewPager viewPager;
-    private Toolbar toolbar;
+
     private ElasticDragDismissFrameLayout dragDismissFrameLayout;
 
     @Override
@@ -39,7 +39,7 @@ public class ImagePreviewActvity extends AppCompatActivity {
         setContentView(R.layout.image_preview_activity);
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         viewPager = findViewById(R.id.viewPager);
-        toolbar = findViewById(R.id.toolbar);
+
         dragDismissFrameLayout = findViewById(R.id.dragDismiss);
 
         dragDismissFrameLayout.addListener(new ElasticDragDismissListener() {
@@ -54,10 +54,7 @@ public class ImagePreviewActvity extends AppCompatActivity {
             }
         });
 
-        hideSystemUI();
-
         setViewPager();
-        setToolbar();
     }
     private void setViewPager() {
 
@@ -76,24 +73,5 @@ public class ImagePreviewActvity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
     }
-    private void setToolbar() {
 
-
-        setSupportActionBar(toolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            //actionBar.setHomeAsUpIndicator();
-            actionBar.setDisplayShowTitleEnabled(false);
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
-    }
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home){
-            getOnBackPressedDispatcher().onBackPressed();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-
-    }
 }

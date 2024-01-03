@@ -35,36 +35,19 @@ import com.example.coloring_app.Listener.OnLongPressListener;
         public Bitmap originalBitmap; // Store the original content before erasing
 
         private boolean isPathEmpty = true;
-        private OnLongPressListener onLongPressListener;
-        private GestureDetector gestureDetector;
 
-        public void setOnLongPressListener(OnLongPressListener listener) {
-            this.onLongPressListener = listener;
-        }
         public ColorView(Context context, @Nullable AttributeSet attrs) {
             super(context, attrs);
             setupDraw();
-            setupGestureDetection(context);
         }
         public void setImageBitmap(Bitmap bitmap){
             if (bitmap != null) {
                 this.bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
                 this.canvas = new Canvas(this.bitmap);
                 invalidate(); // Trigger redraw
-                Log.e("MyApp","setImageBitmap"+bitmap.getHeight());
             }
         }
-        private void setupGestureDetection(Context context) {
-            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                @Override
-                public void onLongPress(MotionEvent e) {
-                    // Notify the listener when a long press is detected
-                    if (onLongPressListener != null) {
-                        onLongPressListener.onLongPressed();
-                    }
-                }
-            });
-        }
+
         private void setupDraw(){
             currentPaintSize = 20;
             paintColor = ContextCompat.getColor(getContext(),R.color.black);
@@ -121,14 +104,13 @@ import com.example.coloring_app.Listener.OnLongPressListener;
             super.onDraw(canvas);
             canvas.drawBitmap(this.bitmap, 0, 0, paint); // Always draw the bitmap
             canvas.drawPath(path, paint);
-            Log.e("MyApp","onDraw");
+
         }
 
         @Override
         public boolean onTouchEvent(MotionEvent event) {
             float touchX = event.getX();
             float touchY = event.getY();
-            gestureDetector.onTouchEvent(event);
 
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
