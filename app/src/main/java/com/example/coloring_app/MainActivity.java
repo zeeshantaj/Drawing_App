@@ -96,9 +96,6 @@ public class MainActivity extends AppCompatActivity  {
 //        }
         colorView = findViewById(R.id.colorView);
 
-
-
-
         Intent intent = getIntent();
         boolean isImage = intent.getBooleanExtra("isImageSend",false);
         Log.e("MyApp","isImage"+isImage);
@@ -272,6 +269,39 @@ public class MainActivity extends AppCompatActivity  {
         colorPickerDialogue.show();
 
     }
+    public void changeCanvasBackground() {
+
+        int whiteColor = ContextCompat.getColor(this,R.color.white);
+
+        final AmbilWarnaDialog colorPickerDialogue = new AmbilWarnaDialog(this, whiteColor,
+                new AmbilWarnaDialog.OnAmbilWarnaListener() {
+                    @Override
+                    public void onCancel(AmbilWarnaDialog dialog) {
+                        // leave this function body as
+                        // blank, as the dialog
+                        // automatically closes when
+                        // clicked on cancel button
+                    }
+
+                    @Override
+                    public void onOk(AmbilWarnaDialog dialog, int color) {
+                        // change the mDefaultColor to
+                        // change the GFG text color as
+                        // it is returned when the OK
+                        // button is clicked from the
+                        // color picker dialog
+
+                        colorView.setBackgroundColor(color);
+                        // now change the picked color
+                        // preview box to mDefaultColor
+//                        Drawable backgroundDrawable = getResources().getDrawable(R.drawable.color_picker);
+//                        backgroundDrawable.setTint(mDefaultColor);
+//                        colorPreview.setBackground(backgroundDrawable);
+                    }
+                });
+        colorPickerDialogue.show();
+
+    }
 
     private void arcMenu(){
         CircleMenu circleMenu = findViewById(R.id.arcMenu);
@@ -307,6 +337,7 @@ public class MainActivity extends AppCompatActivity  {
                 .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.brush_size)
                 .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.eraser)
                 .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.save_icon)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.bg_icon)
                 .setOnMenuSelectedListener(new OnMenuSelectedListener() {
                     @Override
                     public void onMenuSelected(int index) {
@@ -320,13 +351,18 @@ public class MainActivity extends AppCompatActivity  {
                                 showBrushSizeDialogue();
                                 break;
                             case 2:
-                                Toast.makeText(MainActivity.this, "eraser", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "Eraser", Toast.LENGTH_SHORT).show();
                                 colorView.clearCanvas();
                                 break;
                             case 3:
                                 Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_SHORT).show();
                                 showCustomSaveDialog();
                                 break;
+                            case 4:
+                                Toast.makeText(MainActivity.this, "Change Background", Toast.LENGTH_SHORT).show();
+                                changeCanvasBackground();
+                                break;
+
 
                         }
                     }

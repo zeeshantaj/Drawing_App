@@ -120,26 +120,38 @@ public class Saved_Painting_Activity extends AppCompatActivity {
     private void getImageFilesFromDirectory(){
         // Define the columns you want to retrieve
         File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "saved_painting_work");
-
         if (directory.exists() && directory.isDirectory()) {
             File[] files = directory.listFiles();
             if (files != null) {
+                List<ImageData> newFileList = new ArrayList<>(); // Temporary list to hold updated data
                 for (File file : files) {
-                    // Add only image files (you might refine this check based on your file types)
                     if (file.isFile() && file.getName().toLowerCase().endsWith(".png")) {
                         String path = file.getAbsolutePath();
-                        String title = file.getName();
-                        ImageData imagesData1 = new ImageData(path,title);
-
-                        fileList.add(imagesData1);
-
+                        String title = file.getName().replace(".png", ""); // Remove .png extension
+                        ImageData imageData = new ImageData(path, title);
+                        newFileList.add(imageData); // Add updated data to the temporary list
                     }
                 }
-                adapter.notifyDataSetChanged();
+                fileList.clear(); // Clear the original list
+                fileList.addAll(newFileList); // Update the original list with new data
+
+                // Notify adapter after updating data
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        adapter.notifyDataSetChanged(); // Ensure it's called on the UI thread
+                    }
+                });
             }
         }
     }
-//    private List<File> getImageFilesFromDirectory() {
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getImageFilesFromDirectory();
+    }
+    //    private List<File> getImageFilesFromDirectory() {
 //        List<File> imageFiles = new ArrayList<>();
 //
 //        File directory = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "saved_painting_work");
