@@ -3,6 +3,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#E80909</color>
+    <color name="purpleShare">#CBB0FA</color>
 
 
 </resources>

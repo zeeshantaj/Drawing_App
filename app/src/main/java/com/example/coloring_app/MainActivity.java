@@ -8,21 +8,28 @@ import androidx.core.content.ContextCompat;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Path;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.coloring_app.Listener.ImageClickedListener;
 import com.example.coloring_app.Listener.OnLongPressListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.hitomi.cmlibrary.CircleMenu;
+import com.hitomi.cmlibrary.OnMenuSelectedListener;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -56,58 +63,13 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        colorView = findViewById(R.id.colorView);
-        circleSize1 = findViewById(R.id.circleSize1);
-        circleSize2 = findViewById(R.id.circleSize2);
-        circleSize3 = findViewById(R.id.circleSize3);
-        circleSize4 = findViewById(R.id.circleSize4);
-        circleSize5 = findViewById(R.id.circleSize5);
-        eraseBtn = findViewById(R.id.eraserBtn);
-        buttonsLayout = findViewById(R.id.linearLayout);
-        saveBtn = findViewById(R.id.saveBtn);
-        colorPreview = findViewById(R.id.previewSelectedColor);
 
-        previousSelectedView = circleSize1;
-        previousSelectedView.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.red));
-        mDefaultColor = 0;
+        arcMenu();
+//        previousSelectedView = circleSize1;
+//        previousSelectedView.setBackgroundTintList(ContextCompat.getColorStateList(this, R.color.red));
+//        mDefaultColor = 0;
 
-        colorPreview.setOnClickListener(v -> {
-            openColorPickerDialogue();
-        });
-        circleSize1.setOnClickListener(v -> {
-            colorView.setPaintSize(20);
-            updateViewBackgroundTint(circleSize1);
-//            colorView.setEraserMode(false);
 
-        });
-        circleSize2.setOnClickListener(v -> {
-            colorView.setPaintSize(30);
-            updateViewBackgroundTint(circleSize2);
-
-        });
-        circleSize3.setOnClickListener(v -> {
-            colorView.setPaintSize(40);
-            updateViewBackgroundTint(circleSize3);
-
-        });
-        circleSize4.setOnClickListener(v -> {
-            colorView.setPaintSize(50);
-            updateViewBackgroundTint(circleSize4);
-
-        });
-        circleSize5.setOnClickListener(v -> {
-            colorView.setPaintSize(60);
-            updateViewBackgroundTint(circleSize5);
-        });
-
-//        colorView.setEraserMode(false);
-        eraseBtn.setOnClickListener(v -> {
-  //          colorView.setEraserMode(true);
-            colorView.clearCanvas();
-        });
-        saveBtn.setOnClickListener(v -> {
-            showCustomSaveDialog();
-        });
 //        Intent intent = getIntent();
 //
 //        if(isImage) {
@@ -132,7 +94,7 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
 //                }
 //            }
 //        }
-
+        colorView = findViewById(R.id.colorView);
         colorView.setOnLongPressListener(this);
 
 
@@ -196,6 +158,44 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
             } else {
                 // Handle empty file name
                 Toast.makeText(this, "Please enter a file name", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+    }
+    private void showBrushSizeDialogue() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = getLayoutInflater().inflate(R.layout.brush_size_selection_dialugue, null);
+        builder.setView(dialogView);
+
+        SeekBar seekBar = dialogView.findViewById(R.id.seekBar);
+        Button buttonSave = dialogView.findViewById(R.id.brushSizeSetBtn);
+        TextView progressTxt = dialogView.findViewById(R.id.progresTxt);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        buttonSave.setOnClickListener(v -> {
+            colorView.setPaintSize(seekBar.getProgress());
+            Toast.makeText(this, "Brush Size"+seekBar.getProgress(), Toast.LENGTH_SHORT).show();
+
+            dialog.dismiss();
+        });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+                progressTxt.setText(String.valueOf(progress));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
 
@@ -266,10 +266,73 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
                         colorView.setPaintColor(color);
                         // now change the picked color
                         // preview box to mDefaultColor
-                        colorPreview.setBackgroundColor(mDefaultColor);
+//                        Drawable backgroundDrawable = getResources().getDrawable(R.drawable.color_picker);
+//                        backgroundDrawable.setTint(mDefaultColor);
+//                        colorPreview.setBackground(backgroundDrawable);
                     }
                 });
         colorPickerDialogue.show();
+
+    }
+
+    private void arcMenu(){
+        CircleMenu circleMenu = findViewById(R.id.arcMenu);
+
+        circleMenu.setOnTouchListener(new View.OnTouchListener() {
+            float dX, dY;
+
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        // Capture the initial touch position relative to the view
+                        dX = view.getX() - event.getRawX();
+                        dY = view.getY() - event.getRawY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        // Update view position as the user drags their finger
+                        view.animate()
+                                .x(event.getRawX() + dX)
+                                .y(event.getRawY() + dY)
+                                .setDuration(0)
+                                .start();
+                        break;
+                    default:
+                        return false;
+                }
+                return true;
+            }
+        });
+
+        circleMenu.setMainMenu(Color.parseColor("#CBB0FA"),R.drawable.menu_icon,R.drawable.cancel_icon)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.color_picker)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.brush_size)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.eraser)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.save_icon)
+                .setOnMenuSelectedListener(new OnMenuSelectedListener() {
+                    @Override
+                    public void onMenuSelected(int index) {
+                        switch (index){
+                            case 0:
+                                Toast.makeText(MainActivity.this, "Color picker", Toast.LENGTH_SHORT).show();
+                                openColorPickerDialogue();
+                                break;
+                            case 1:
+                                Toast.makeText(MainActivity.this, "Brush Size", Toast.LENGTH_SHORT).show();
+                                showBrushSizeDialogue();
+                                break;
+                            case 2:
+                                Toast.makeText(MainActivity.this, "eraser", Toast.LENGTH_SHORT).show();
+                                colorView.clearCanvas();
+                                break;
+                            case 3:
+                                Toast.makeText(MainActivity.this, "Save", Toast.LENGTH_SHORT).show();
+                                showCustomSaveDialog();
+                                break;
+
+                        }
+                    }
+                });
     }
 
     @Override
@@ -282,5 +345,54 @@ public class MainActivity extends AppCompatActivity  implements OnLongPressListe
             isVisible = true;
             buttonsLayout.setVisibility(View.VISIBLE);
         }
+    }
+    private void deprecatedCodes(){
+
+//        circleSize1 = findViewById(R.id.circleSize1);
+//        circleSize2 = findViewById(R.id.circleSize2);
+//        circleSize3 = findViewById(R.id.circleSize3);
+//        circleSize4 = findViewById(R.id.circleSize4);
+//        circleSize5 = findViewById(R.id.circleSize5);
+//        eraseBtn = findViewById(R.id.eraserBtn);
+//        buttonsLayout = findViewById(R.id.linearLayout);
+//        saveBtn = findViewById(R.id.saveBtn);
+//        colorPreview = findViewById(R.id.previewSelectedColor);
+//        colorPreview.setOnClickListener(v -> {
+//
+//        });
+//        circleSize1.setOnClickListener(v -> {
+//            colorView.setPaintSize(20);
+//            updateViewBackgroundTint(circleSize1);
+////            colorView.setEraserMode(false);
+//
+//        });
+//        circleSize2.setOnClickListener(v -> {
+//            colorView.setPaintSize(30);
+//            updateViewBackgroundTint(circleSize2);
+//
+//        });
+//        circleSize3.setOnClickListener(v -> {
+//            colorView.setPaintSize(40);
+//            updateViewBackgroundTint(circleSize3);
+//
+//        });
+//        circleSize4.setOnClickListener(v -> {
+//            colorView.setPaintSize(50);
+//            updateViewBackgroundTint(circleSize4);
+//
+//        });
+//        circleSize5.setOnClickListener(v -> {
+//            colorView.setPaintSize(60);
+//            updateViewBackgroundTint(circleSize5);
+//        });
+//
+////        colorView.setEraserMode(false);
+//        eraseBtn.setOnClickListener(v -> {
+//            //          colorView.setEraserMode(true);
+//
+//        });
+//        saveBtn.setOnClickListener(v -> {
+//
+//        });
     }
 }

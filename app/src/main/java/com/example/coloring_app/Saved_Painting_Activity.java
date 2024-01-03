@@ -7,15 +7,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.coloring_app.Model.ImageData;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.hitomi.cmlibrary.CircleMenu;
+import com.hitomi.cmlibrary.OnMenuSelectedListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -62,7 +66,37 @@ public class Saved_Painting_Activity extends AppCompatActivity {
             }
         });
 
+        arcMenu();
     }
+    private void arcMenu(){
+        CircleMenu circleMenu = findViewById(R.id.arcMenuPaint);
+        circleMenu.setMainMenu(Color.parseColor("#CBB0FA"),R.drawable.menu_icon,R.drawable.cancel_icon)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.color_picker)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.brush_size)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.eraser)
+                .addSubMenu(Color.parseColor("#CBB0FA"),R.drawable.save_icon)
+                .setOnMenuSelectedListener(new OnMenuSelectedListener() {
+                    @Override
+                    public void onMenuSelected(int index) {
+                        switch (index){
+                            case 0:
+                                Toast.makeText(Saved_Painting_Activity.this, "Color picker", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 1:
+                                Toast.makeText(Saved_Painting_Activity.this, "Brush Size", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 2:
+                                Toast.makeText(Saved_Painting_Activity.this, "eraser", Toast.LENGTH_SHORT).show();
+                                break;
+                            case 3:
+                                Toast.makeText(Saved_Painting_Activity.this, "Save", Toast.LENGTH_SHORT).show();
+                                break;
+
+                        }
+                    }
+                });
+    }
+
     private void updateSpanCount(int newSpanCount) {
         final int oldSpanCount = layoutManager.getSpanCount();
 

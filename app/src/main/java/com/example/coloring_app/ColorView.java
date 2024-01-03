@@ -21,146 +21,146 @@ import androidx.core.content.ContextCompat;
 
 import com.example.coloring_app.Listener.OnLongPressListener;
 
-public class ColorView extends View {
-    private Paint paint;
-    private Path path;
-    public Bitmap bitmap;
-    private Canvas canvas;
+    public class ColorView extends View {
+        private Paint paint;
+        private Path path;
+        public Bitmap bitmap;
+        private Canvas canvas;
 
-    private float currentPaintSize;
-    private int paintColor;
+        private float currentPaintSize;
+        private int paintColor;
 
-    private boolean isEraserMode = false;
+        private boolean isEraserMode = false;
 
-    public Bitmap originalBitmap; // Store the original content before erasing
+        public Bitmap originalBitmap; // Store the original content before erasing
 
-    private boolean isPathEmpty = true;
-    private OnLongPressListener onLongPressListener;
-    private GestureDetector gestureDetector;
+        private boolean isPathEmpty = true;
+        private OnLongPressListener onLongPressListener;
+        private GestureDetector gestureDetector;
 
-    public void setOnLongPressListener(OnLongPressListener listener) {
-        this.onLongPressListener = listener;
-    }
-    public ColorView(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        setupDraw();
-        setupGestureDetection(context);
-    }
-    public void setImageBitmap(Bitmap bitmap){
-        if (bitmap != null) {
-            this.bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
-            this.canvas = new Canvas(this.bitmap);
-            invalidate(); // Trigger redraw
-            Log.e("MyApp","setImageBitmap"+bitmap.getHeight());
+        public void setOnLongPressListener(OnLongPressListener listener) {
+            this.onLongPressListener = listener;
         }
-    }
-    private void setupGestureDetection(Context context) {
-        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public void onLongPress(MotionEvent e) {
-                // Notify the listener when a long press is detected
-                if (onLongPressListener != null) {
-                    onLongPressListener.onLongPressed();
+        public ColorView(Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+            setupDraw();
+            setupGestureDetection(context);
+        }
+        public void setImageBitmap(Bitmap bitmap){
+            if (bitmap != null) {
+                this.bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+                this.canvas = new Canvas(this.bitmap);
+                invalidate(); // Trigger redraw
+                Log.e("MyApp","setImageBitmap"+bitmap.getHeight());
+            }
+        }
+        private void setupGestureDetection(Context context) {
+            gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+                @Override
+                public void onLongPress(MotionEvent e) {
+                    // Notify the listener when a long press is detected
+                    if (onLongPressListener != null) {
+                        onLongPressListener.onLongPressed();
+                    }
                 }
-            }
-        });
-    }
-    private void setupDraw(){
-        currentPaintSize = 20;
-        paintColor = ContextCompat.getColor(getContext(),R.color.black);
-        paint =new Paint();
-        path = new Path();
-        paint.setAntiAlias(true);
-        paint.setColor(paintColor);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setStrokeWidth(currentPaintSize);
-    }
-    public void setEraserMode(boolean eraserMode) {
-        isEraserMode = eraserMode;
-        if (isEraserMode) {
-            // Store the current bitmap as the original content only if the path is empty
-            if (isPathEmpty) {
-                originalBitmap = Bitmap.createBitmap(bitmap);
-            }
-            paint.setColor(Color.TRANSPARENT); // Set paint color to transparent for erasing
-            paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
-        } else {
-            paint.setXfermode(null); // Set the paint to normal mode
-            if (originalBitmap != null) {
-                // Restore the original content only if the path is empty
+            });
+        }
+        private void setupDraw(){
+            currentPaintSize = 20;
+            paintColor = ContextCompat.getColor(getContext(),R.color.black);
+            paint =new Paint();
+            path = new Path();
+            paint.setAntiAlias(true);
+            paint.setColor(paintColor);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeJoin(Paint.Join.ROUND);
+            paint.setStrokeWidth(currentPaintSize);
+        }
+        public void setEraserMode(boolean eraserMode) {
+            isEraserMode = eraserMode;
+            if (isEraserMode) {
+                // Store the current bitmap as the original content only if the path is empty
                 if (isPathEmpty) {
-                    bitmap = Bitmap.createBitmap(originalBitmap);
-                    canvas = new Canvas(bitmap);
-                    invalidate();
+                    originalBitmap = Bitmap.createBitmap(bitmap);
                 }
+                paint.setColor(Color.TRANSPARENT); // Set paint color to transparent for erasing
+                paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+            } else {
+                paint.setXfermode(null); // Set the paint to normal mode
+                if (originalBitmap != null) {
+                    // Restore the original content only if the path is empty
+                    if (isPathEmpty) {
+                        bitmap = Bitmap.createBitmap(originalBitmap);
+                        canvas = new Canvas(bitmap);
+                        invalidate();
+                    }
+                }
+                paint.setColor(paintColor);
             }
+        }
+        public void setPaintColor(int color){
+            paintColor = color;
             paint.setColor(paintColor);
         }
-    }
-    public void setPaintColor(int color){
-        paintColor = color;
-        paint.setColor(paintColor);
-    }
-    public void setPaintSize(float size) {
-        currentPaintSize = size;
-        paint.setStrokeWidth(currentPaintSize); // Update paint size
-    }
-
-
-
-    @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
-        bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
-        canvas = new Canvas(bitmap);
-    }
-
-    @Override
-    protected void onDraw(@NonNull Canvas canvas) {
-        super.onDraw(canvas);
-        canvas.drawBitmap(this.bitmap, 0, 0, paint); // Always draw the bitmap
-        canvas.drawPath(path, paint);
-        Log.e("MyApp","onDraw");
-    }
-
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        float touchX = event.getX();
-        float touchY = event.getY();
-        gestureDetector.onTouchEvent(event);
-
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                path.moveTo(touchX, touchY);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                path.lineTo(touchX, touchY);
-                break;
-            case MotionEvent.ACTION_UP:
-                canvas.drawPath(path, paint);
-                path.reset();
-                break;
-            default:
-                return false;
+        public void setPaintSize(float size) {
+            currentPaintSize = size;
+            paint.setStrokeWidth(currentPaintSize); // Update paint size
         }
-        invalidate();
-        return true;
-    }
 
-    public Bitmap getBitmapFromView() {
-        Bitmap returnedBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(returnedBitmap);
-        draw(canvas);
-        return returnedBitmap;
-    }
 
-    public Bitmap getBitmap() {
-        return bitmap;
-    }
 
-    public void clearCanvas() {
-        canvas.drawColor(getResources().getColor(R.color.white));
-        invalidate();
-    }
+        @Override
+        protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+            super.onSizeChanged(w, h, oldw, oldh);
+            bitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
+            canvas = new Canvas(bitmap);
+        }
+
+        @Override
+        protected void onDraw(@NonNull Canvas canvas) {
+            super.onDraw(canvas);
+            canvas.drawBitmap(this.bitmap, 0, 0, paint); // Always draw the bitmap
+            canvas.drawPath(path, paint);
+            Log.e("MyApp","onDraw");
+        }
+
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            float touchX = event.getX();
+            float touchY = event.getY();
+            gestureDetector.onTouchEvent(event);
+
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    path.moveTo(touchX, touchY);
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    path.lineTo(touchX, touchY);
+                    break;
+                case MotionEvent.ACTION_UP:
+                    canvas.drawPath(path, paint);
+                    path.reset();
+                    break;
+                default:
+                    return false;
+            }
+            invalidate();
+            return true;
+        }
+
+        public Bitmap getBitmapFromView() {
+            Bitmap returnedBitmap = Bitmap.createBitmap(getWidth(), getHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(returnedBitmap);
+            draw(canvas);
+            return returnedBitmap;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+
+        public void clearCanvas() {
+            canvas.drawColor(getResources().getColor(R.color.white));
+            invalidate();
+        }
 }
